@@ -33,11 +33,18 @@ def import_proxies(proxiesFile):
         port = tmp[1]
 
         proxy = {"ip": ip, "port": port}
-        proxylist.append(proxy)
+        if proxy not in proxylist:
+            proxylist.append(proxy)
     proxies.close()
     print(Fore.GREEN + '[IMPORTED] ' + Fore.RESET + ' Proxylist')
     return
 
+#   Sorting proxylist by ping
+def sortProxyList(workingProxies):
+    workingProxiesSorted = sorted(workingProxies, key=itemgetter('ping'))
+    return workingProxiesSorted
+
+#   Saves proxylist in a file
 def saveActive(filePath, workingProxies):
     print(Fore.YELLOW + '[SAVING] ' + Fore.RESET + ' Active proxies...')
     alive = open(filePath, 'w')
@@ -47,6 +54,7 @@ def saveActive(filePath, workingProxies):
     print(Fore.GREEN + '[SAVED]' + Style.RESET_ALL + ' Active proxies in ' + '"' + filePath + '".')
     return
 
+#   Saves proxylist in proxychains format in a file
 def saveActiveProxychainsFormat(filePath, workingProxies):
     print(Fore.YELLOW + '[SAVING] ' + Fore.RESET + 'Active proxies in proxychains format...')
     alive = open(outputPath+pcsAliveFile, 'w')
@@ -56,6 +64,7 @@ def saveActiveProxychainsFormat(filePath, workingProxies):
     print(Fore.GREEN + '[SAVED]' + Fore.RESET + ' Active proxies in pcs-format in ' + '"' + pcsAliveFile + '".')
     return
 
+#   Checks if a proxy is working, gets information about the proxy and add its to the working proxy list
 def check_proxy(proxy):
     try:
         print(Fore.YELLOW + '[CHECKING]' + Fore.RESET + proxy['ip'] + ':' + proxy['port'])
@@ -72,6 +81,7 @@ def check_proxy(proxy):
         return e
     return True
 
+#   Handles the checking of a whole proxy list
 def check_proxyList():
     print(Fore.YELLOW + '[CHECKING - Proxylist]' + Fore.RESET)
     for proxy in proxylist:
@@ -88,6 +98,6 @@ def check_proxyList():
 import_proxies(proxiesFile)
 check_proxyList()
 print(Fore.RED + '[STATUS] ' + Fore.RESET + str(len(workingProxies)) + ' proxies from ' + str(len(proxylist)) + ' alive.')
-workingProxiesSorted = sorted(workingProxies, key=itemgetter('ping'))
-saveActive(outputPath+aliveFile, workingProxiesSorted)
-saveActiveProxychainsFormat(outputPath+aliveFile, workingProxiesSorted)
+workingProxies = sortProxyList(workingProxies)
+saveActive(outputPath+aliveFile, workingProxies)
+saveActiveProxychainsFormat(outputPath+aliveFile, workingProxies)
