@@ -5,15 +5,15 @@ Python SOCKS5 Proxy Checker
 - [x] Save working proxies in a .txt file
 - [x] Export to proxychain format and default
 - [x] SOCKS5 support
+- [x] HTPPS support
 - [x] Multithreading
 - [x] Proxy Speed
 - [x] Proxy Location
 - [x] External IP
 - [x] Date integration for the output file
 - [x] Sorting proxies by speed
+- [x] Auto removing duplicated proxy entries
 - [ ] CLI input
-- [ ] Auto removing duplicated proxy entries
-- [ ] HTPPS support
 - [ ] TOR-Proxy integration for anonymous checking
 - [ ] Proxy scraper integration
 - [ ] GUI
