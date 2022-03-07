@@ -6,11 +6,6 @@ from threading import Thread
 from colorama import Fore, Style
 from operator import itemgetter
 
-#   --- Sort by ping concept ---
-#
-# workingProxiesSorted = sorted(workingProxies, key=itemgetter('ping'))
-#
-
 date = str(datetime.datetime.now().replace(microsecond = 0))
 date = date.replace(' ', '-').replace(':', '-')
 
