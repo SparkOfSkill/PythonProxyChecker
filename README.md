@@ -9,9 +9,11 @@ Python SOCKS5 Proxy Checker
 - [x] Proxy Speed
 - [x] Proxy Location
 - [x] External IP
+- [x] Date integration for the output file
+- [x] Sorting proxies by speed
 - [ ] CLI input
+- [ ] Auto removing duplicated proxy entries
 - [ ] HTPPS support
-- [ ] Date integration for the output file
 - [ ] TOR-Proxy integration for anonymous checking
 - [ ] Proxy scraper integration
 - [ ] GUI
@@ -28,5 +30,6 @@ Paste your proxies into "proxylist.txt" and run:
 python proxyChecker.py
 ```
 
+
 ### Used in this project
-https://myip.com
+<a href="https://myip.com/" target="_blank" rel="noopener noreferrer">MYIP.com</a>

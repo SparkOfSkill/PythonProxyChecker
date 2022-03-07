@@ -1,16 +1,26 @@
 # SOCKS5 Proxy checker
 #   by Spark of Skill
 #
-import sys, requests
+import sys, requests, datetime
 from threading import Thread
+from colorama import Fore, Style
+from operator import itemgetter
+
+#   --- Sort by ping concept ---
+#
+# workingProxiesSorted = sorted(workingProxies, key=itemgetter('ping'))
+#
+
+date = str(datetime.datetime.now().replace(microsecond = 0))
+date = date.replace(' ', '-').replace(':', '-')
 
 # File with proxies to check
 proxiesFile = 'proxylist.txt'
 
 # File to save active proxies
-aliveFile = 'alive.txt'
+outputPath = './Output/'
+aliveFile = 'alive-' + date +'.txt'
 pcsAliveFile = 'pcs-' + aliveFile   #ready to use proxychains format
-aliveMode = 'w' # w=write, a=append
 
 reqTimeout = 10
 proxyType = 'socks5' # type of proxies to check ('socks5' or 'https')
@@ -20,7 +30,7 @@ workingProxies = []
 threads = []
 
 def import_proxies(proxiesFile):
-    print('[IMPORTING] Proxylist from ' + proxiesFile)
+    print(Fore.YELLOW + '[IMPORTING]' + Fore.RESET + ' Proxylist from ' + proxiesFile)
     proxies = open(proxiesFile)
     for x in proxies:
         tmp = x.strip().split(":")
@@ -30,30 +40,30 @@ def import_proxies(proxiesFile):
         proxy = {"ip": ip, "port": port}
         proxylist.append(proxy)
     proxies.close()
-    print('[IMPORTED] Proxylist')
+    print(Fore.GREEN + '[IMPORTED] ' + Fore.RESET + ' Proxylist')
     return
 
-def saveActive():
-    print('[SAVING] Active proxies...')
-    alive = open('./'+aliveFile, aliveMode)
+def saveActive(filePath, workingProxies):
+    print(Fore.YELLOW + '[SAVING] ' + Fore.RESET + ' Active proxies...')
+    alive = open(filePath, 'w')
     for proxy in workingProxies:
         alive.write(proxy['ip'] + ':' + proxy['port']+'\n')
     alive.close()
-    print('[SAVED] Active proxies in ' + '"' + aliveFile + '".')
+    print(Fore.GREEN + '[SAVED]' + Style.RESET_ALL + ' Active proxies in ' + '"' + filePath + '".')
     return
 
-def saveActiveProxychainsFormat():
-    print('[SAVING] Active proxies in proxychains format...')
-    alive = open('./'+pcsAliveFile, aliveMode)
+def saveActiveProxychainsFormat(filePath, workingProxies):
+    print(Fore.YELLOW + '[SAVING] ' + Fore.RESET + 'Active proxies in proxychains format...')
+    alive = open(outputPath+pcsAliveFile, 'w')
     for proxy in workingProxies:
         alive.write(proxyType + ' ' + proxy['ip'] + ' ' + proxy['port'] + '      #' + proxy['external_ip'] +' - ' + proxy['cc'] + ' - ' + proxy['country'] + ' - ' + str(proxy['ping']) +'ms\n')
     alive.close()
-    print('[SAVED] Active proxies in pcs-format in ' + '"' + pcsAliveFile + '".')
+    print(Fore.GREEN + '[SAVED]' + Fore.RESET + ' Active proxies in pcs-format in ' + '"' + pcsAliveFile + '".')
     return
 
 def check_proxy(proxy):
     try:
-        print('[CHECKING]' + proxy['ip'] + ':' + proxy['port'])
+        print(Fore.YELLOW + '[CHECKING]' + Fore.RESET + proxy['ip'] + ':' + proxy['port'])
         proxies = {'https': proxyType + '://' + proxy['ip'] + ':' + proxy['port']}
         req = requests.get('https://api.myip.com', proxies=proxies, timeout=reqTimeout)
         data = req.json()
@@ -61,14 +71,14 @@ def check_proxy(proxy):
         proxy['external_ip'] = str(data['ip'])
         proxy['country'] = str(data['country'])
         proxy['cc'] = str(data['cc'])
-        print('[Alive] ' + proxy['ip'] + ':' + proxy['port'] + ' - ' + proxy['external_ip'] +' - ' + proxy['cc'] + ' - ' + proxy['country'] + ' - ' + str(req.elapsed.total_seconds()) + 'ms - ' + str(req.status_code))
+        print(Fore.CYAN + '[Alive] ' + Fore.RESET + proxy['ip'] + ':' + proxy['port'] + ' - ' + proxy['external_ip'] +' - ' + proxy['cc'] + ' - ' + proxy['country'] + ' - ' + str(req.elapsed.total_seconds()) + 'ms - ' + str(req.status_code))
         workingProxies.append(proxy)
     except requests.exceptions.RequestException as e:
         return e
     return True
 
 def check_proxyList():
-    print('[CHECKING - Proxylist]')
+    print(Fore.YELLOW + '[CHECKING - Proxylist]' + Fore.RESET)
     for proxy in proxylist:
         thread = Thread( target=check_proxy, args=(proxy, ))
         thread.start()
@@ -76,12 +86,13 @@ def check_proxyList():
 
     for thread in threads:
         thread.join()
-    print('[DONE CHECKING - Proxylist]')
+    print(Fore.GREEN + '[DONE CHECKING - Proxylist]' + Fore.RESET)
     return
 
 
 import_proxies(proxiesFile)
 check_proxyList()
-print('[STATUS] ' + str(len(workingProxies)) + ' proxies from ' + str(len(proxylist)) + ' alive.')
-saveActive()
-saveActiveProxychainsFormat()
+print(Fore.RED + '[STATUS] ' + Fore.RESET + str(len(workingProxies)) + ' proxies from ' + str(len(proxylist)) + ' alive.')
+workingProxiesSorted = sorted(workingProxies, key=itemgetter('ping'))
+saveActive(outputPath+aliveFile, workingProxiesSorted)
+saveActiveProxychainsFormat(outputPath+aliveFile, workingProxiesSorted)
