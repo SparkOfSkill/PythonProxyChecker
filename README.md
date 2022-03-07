@@ -11,9 +11,9 @@ Python SOCKS5 Proxy Checker
 - [x] External IP
 - [x] Date integration for the output file
 - [x] Sorting proxies by speed
+- [x] HTPPS support
 - [ ] CLI input
 - [ ] Auto removing duplicated proxy entries
-- [ ] HTPPS support
 - [ ] TOR-Proxy integration for anonymous checking
 - [ ] Proxy scraper integration
 - [ ] GUI
