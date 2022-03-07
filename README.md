@@ -20,6 +20,8 @@ Python SOCKS5 Proxy Checker
 
 ## 🖥 Installation
 ```bash
+git clone https://github.com/SparkOfSkill/PythonProxyChecker.git
+cd PythonProxyChecker
 pip install -r requirements.txt
 ```
 
