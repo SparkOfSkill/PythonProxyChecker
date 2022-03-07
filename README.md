@@ -1,26 +1,27 @@
 # PythonProxyChecker
 Python SOCKS5 Proxy Checker
 
-- [ ] CLI input
+## ⚙️ Features
 - [x] Save working proxies in a .txt file
 - [x] Export to proxychain format and default
 - [x] SOCKS5 support
-- [ ] HTPPS support
 - [x] Proxy Speed
 - [x] Proxy Location
 - [x] External IP
+- [ ] CLI input
+- [ ] HTPPS support
 - [ ] TOR-Proxy integration for anonymous checking
 - [ ] Proxy scraper integration
 - [ ] GUI
 
 
-How to install:
-```
+## 🖥 Installation
+```bash
 pip install -r requirements.txt
 ```
 
-How to use:
+## ⛓ How to use
 Paste your proxies into "proxylist.txt" and run:
-```
+```bash
 python proxyChecker.py
 ```
