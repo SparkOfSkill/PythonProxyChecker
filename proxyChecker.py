@@ -1,76 +1,74 @@
-# Proxy checking tool
+# SOCKS5 Proxy checker
+#   by Spark of Skill
 #
-#
-#
-import sys
-import urllib.request, requests, socket
+import sys, requests
 from threading import Thread
 
 # File with proxies to check
-proxiesFile = "proxylist.txt"
+proxiesFile = 'proxylist.txt'
 
 # File to save active proxies
-aliveFile = "alive.txt"
-pcsAliveFile = 'pcs-' + aliveFile
+aliveFile = 'alive.txt'
+pcsAliveFile = 'pcs-' + aliveFile   #ready to use proxychains format
 aliveMode = 'w' # w=write, a=append
+
+reqTimeout = 10
+proxyType = 'socks5' # type of proxies to check ('socks5' or 'https')
 
 proxylist = []
 workingProxies = []
 threads = []
 
-socket.setdefaulttimeout(15)
-
 def import_proxies(proxiesFile):
-    print("Importing Proxylist...")
+    print('[IMPORTING] Proxylist from ' + proxiesFile)
     proxies = open(proxiesFile)
     for x in proxies:
-        y = x.strip().split(":")
-        ip = y[0]
-        port = y[1]
+        tmp = x.strip().split(":")
+        ip = tmp[0]
+        port = tmp[1]
 
         proxy = {"ip": ip, "port": port}
         proxylist.append(proxy)
     proxies.close()
-    print("Proxylist imported.")
+    print('[IMPORTED] Proxylist')
     return
 
 def saveActive():
-    print('Saving active proxies...')
-    alive = open(aliveFile, aliveMode)
+    print('[SAVING] Active proxies...')
+    alive = open('./'+aliveFile, aliveMode)
     for proxy in workingProxies:
         alive.write(proxy['ip'] + ':' + proxy['port']+'\n')
     alive.close()
-    print('Active proxies saved in ' + '"' + aliveFile + '".')
+    print('[SAVED] Active proxies in ' + '"' + aliveFile + '".')
     return
 
 def saveActiveProxychainsFormat():
-    print('Saving active proxies in proxychains format...')
-    alive = open(pcsAliveFile, aliveMode)
+    print('[SAVING] Active proxies in proxychains format...')
+    alive = open('./'+pcsAliveFile, aliveMode)
     for proxy in workingProxies:
-        alive.write('socks5 ' + proxy['ip'] + ' ' + proxy['port'] + '      #' + proxy['external_ip'] +' - ' + proxy['cc'] + ' - ' + proxy['country'] + ' - ' + str(proxy['ping']) +'\n')
+        alive.write(proxyType + ' ' + proxy['ip'] + ' ' + proxy['port'] + '      #' + proxy['external_ip'] +' - ' + proxy['cc'] + ' - ' + proxy['country'] + ' - ' + str(proxy['ping']) +'ms\n')
     alive.close()
-    print('Active proxies in pcs-format saved in ' + '"' + pcsAliveFile + '".')
+    print('[SAVED] Active proxies in pcs-format in ' + '"' + pcsAliveFile + '".')
     return
 
 def check_proxy(proxy):
     try:
-        print("Checking: " + proxy['ip'] + ':' + proxy['port'])
-        proxies = {'https': "socks5://" + proxy['ip'] + ':' + proxy['port']}
-        req = requests.get('https://api.myip.com', proxies=proxies, timeout=10)
+        print('[CHECKING]' + proxy['ip'] + ':' + proxy['port'])
+        proxies = {'https': proxyType + '://' + proxy['ip'] + ':' + proxy['port']}
+        req = requests.get('https://api.myip.com', proxies=proxies, timeout=reqTimeout)
         data = req.json()
         proxy['ping'] = req.elapsed.total_seconds()
         proxy['external_ip'] = str(data['ip'])
         proxy['country'] = str(data['country'])
         proxy['cc'] = str(data['cc'])
-        #print(req.text)
-        print(proxy['ip'] + ':' + proxy['port'] + ' - ' + proxy['external_ip'] +' - ' + proxy['cc'] + ' - ' + proxy['country'] + ' - ' + str(req.elapsed.total_seconds()) + ' - ' + str(req.status_code))
+        print('[Alive] ' + proxy['ip'] + ':' + proxy['port'] + ' - ' + proxy['external_ip'] +' - ' + proxy['cc'] + ' - ' + proxy['country'] + ' - ' + str(req.elapsed.total_seconds()) + 'ms - ' + str(req.status_code))
         workingProxies.append(proxy)
     except requests.exceptions.RequestException as e:
         return e
-    return 0
+    return True
 
 def check_proxyList():
-    print("Checking Proxylist...")
+    print('[CHECKING - Proxylist]')
     for proxy in proxylist:
         thread = Thread( target=check_proxy, args=(proxy, ))
         thread.start()
@@ -78,7 +76,7 @@ def check_proxyList():
 
     for thread in threads:
         thread.join()
-    print("Done checking Proxylist!")
+    print('[DONE CHECKING - Proxylist]')
     return
 
 

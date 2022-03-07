@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Custom
+proxylist.txt
+alive.txt
+pcs-alive.txt
+
 # C extensions
 *.so
 
