@@ -82,5 +82,6 @@ def check_proxyList():
 
 import_proxies(proxiesFile)
 check_proxyList()
+print('[STATUS] ' + str(len(workingProxies)) + ' proxies from ' + str(len(proxylist)) + ' alive.')
 saveActive()
 saveActiveProxychainsFormat()
